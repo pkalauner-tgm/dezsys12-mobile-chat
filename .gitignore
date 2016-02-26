@@ -1,0 +1,13 @@
+.idea/
+.gradle/
+out/
+target/
+bin/
+build/
+*.iml
+*.class
+Thumbs.db
+.DS_STORE
+gradle-app.setting
+!gradle-wrapper.jar
+*.db
