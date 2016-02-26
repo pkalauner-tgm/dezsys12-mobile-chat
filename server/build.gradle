@@ -1,0 +1,63 @@
+group 'at.kalauner'
+version '1.0'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.0.RELEASE")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+
+repositories {
+    mavenCentral()
+}
+springBoot {
+    mainClass = "Application"
+}
+
+
+jar {
+    baseName = 'Kalauner_Dezsys09'
+    version = '1.0'
+    from sourceSets.main.allSource
+}
+
+task stage {
+    dependsOn build
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-ws")
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-starter-undertow")
+    compile("org.springframework.boot:spring-boot-starter-data-jpa")
+    compile("com.h2database:h2")
+    compile("org.springframework.boot:spring-boot-starter-jersey")
+    compile("org.glassfish.jersey.media:jersey-media-json-jackson")
+    compile("org.webjars:bootstrap:3.3.1")
+    compile("wsdl4j:wsdl4j:1.6.1")
+    compile("commons-cli:commons-cli:1.2")
+    compile("com.gooogle.guava:guava:19.0")
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.5'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.5'
+    testCompile("junit:junit")
+}
+
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
+}
