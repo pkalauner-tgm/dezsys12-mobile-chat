@@ -28,7 +28,7 @@ springBoot {
 
 
 jar {
-    baseName = 'Kalauner_Dezsys09'
+    baseName = 'Kalauner_Dezsys12_Server'
     version = '1.0'
     from sourceSets.main.allSource
 }
