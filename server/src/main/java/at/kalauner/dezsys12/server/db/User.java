@@ -5,6 +5,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
 /**
@@ -14,6 +15,7 @@ import javax.validation.constraints.Size;
  * @version 20160212.1
  */
 @Entity
+@Table(name="\"user\"")
 public class User {
     @Id
     @Size(max = 50)
