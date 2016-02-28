@@ -73,8 +73,11 @@ public class MessageEndpoint {
         if (user == null)
             return Util.getResponse(Response.Status.BAD_REQUEST, "No open session with this ID. Try reconnecting to the chat.");
 
+        String messageContent = sentMessage.getContent().trim();
+        if (messageContent.isEmpty())
+            return Util.getResponse(Response.Status.BAD_REQUEST, "Empty message");
 
-        Message message = new Message(user.getName(), sentMessage.getContent());
+        Message message = new Message(user.getName(), messageContent);
 
         ex.submit((Runnable) () -> {
             Set<String> sids = waiters.keySet();
