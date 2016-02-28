@@ -34,6 +34,8 @@ import android.widget.TextView;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
 
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -42,10 +44,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import at.kalauner.dezsys12.Dezsys12Application;
-import at.kalauner.dezsys12.connection.CustomRestClient;
 import at.kalauner.dezsys12.R;
 import at.kalauner.dezsys12.activities.listener.TextWatcherImpl;
-import at.kalauner.dezsys12.util.Hashing;
+import at.kalauner.dezsys12.connection.CustomRestClient;
 import at.kalauner.dezsys12.util.Validation;
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
@@ -217,13 +218,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // perform the user login attempt.
             showProgress(true);
 
-            password = Hashing.sha256hash(password);
+            password = new String(Hex.encodeHex(DigestUtils.sha256(password)));
 
             JSONObject params = new JSONObject();
             StringEntity entity = null;
             try {
                 params.put("email", email);
-                params.put("password", password);
+                params.put("pwhash", password);
                 entity = new StringEntity(params.toString());
             } catch (JSONException | UnsupportedEncodingException e) {
                 Log.e("Login", "Exception occurred", e);

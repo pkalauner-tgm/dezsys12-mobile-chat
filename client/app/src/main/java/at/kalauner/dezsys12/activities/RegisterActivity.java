@@ -3,22 +3,19 @@ package at.kalauner.dezsys12.activities;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
-
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -34,8 +31,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.TextHttpResponseHandler;
 
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -43,11 +41,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import at.kalauner.dezsys12.Dezsys12Application;
-import at.kalauner.dezsys12.connection.CustomRestClient;
 import at.kalauner.dezsys12.R;
 import at.kalauner.dezsys12.activities.listener.TextWatcherImpl;
-import at.kalauner.dezsys12.util.Hashing;
+import at.kalauner.dezsys12.connection.CustomRestClient;
 import at.kalauner.dezsys12.util.Validation;
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
@@ -222,14 +218,14 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
             // perform the user login attempt.
             showProgress(true);
 
-            password = Hashing.sha256hash(password);
+            password = new String(Hex.encodeHex(DigestUtils.sha256(password)));
 
             JSONObject params = new JSONObject();
             StringEntity entity = null;
             try {
                 params.put("email", email);
                 params.put("name", name);
-                params.put("password", password);
+                params.put("pwhash", password);
                 entity = new StringEntity(params.toString());
             } catch (JSONException | UnsupportedEncodingException e) {
                 Log.e("Register", "Exception occurred", e);
