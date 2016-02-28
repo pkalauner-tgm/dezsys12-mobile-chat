@@ -13,6 +13,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -34,9 +35,13 @@ public class MessageEndpoint {
     final static Map<String, AsyncResponse> waiters = new ConcurrentHashMap<>();
     final static ExecutorService ex = Executors.newSingleThreadExecutor();
 
+    private String chatroomid = "Defaut"; //TODO
+
     @Inject
     private SessionManager sessionManager;
 
+    @Inject
+    private ChatRepository chatRepository;
 
     /**
      * Request by the client, the connection is kept alive until a new message was posted
@@ -54,9 +59,36 @@ public class MessageEndpoint {
             return Util.getResponse(Response.Status.BAD_REQUEST, "No open session with this ID. Try reconnecting to the chat.");
 
         waiters.put(uuid, asyncResp);
-
         return Response.ok().build();
     }
+
+    /**
+     * Receives all messages since the given message
+     *
+     * @param asyncResp AsyncResponse
+     * @param headers   HttpHeaders
+     * @param id        last message id
+     * @return Response
+     */
+    @GET
+    @Path("/{id}")
+    public Response hangUp(@Suspended AsyncResponse asyncResp, @Context HttpHeaders headers, @PathParam("id") int id) {
+        String uuid = headers.getCookies().get("sid").getValue();
+        User user = sessionManager.getUser(uuid);
+
+        if (user == null)
+            return Util.getResponse(Response.Status.BAD_REQUEST, "No open session with this ID. Try reconnecting to the chat.");
+
+        waiters.put(uuid, asyncResp);
+
+        List<Message> messages = this.chatRepository.getMessages(chatroomid, id + 1);
+
+        if (!messages.isEmpty()) {
+            asyncResp.resume(messages);
+        }
+        return Response.ok().build();
+    }
+
 
     /**
      * A new message by the client
@@ -78,11 +110,12 @@ public class MessageEndpoint {
             return Util.getResponse(Response.Status.BAD_REQUEST, "Empty message");
 
         Message message = new Message(user.getName(), messageContent);
+        message.setChatRoomId(chatroomid);
+        this.chatRepository.addMessage(message);
 
         ex.submit((Runnable) () -> {
             Set<String> sids = waiters.keySet();
-            // Sends message to all, except sender
-            sids.stream().filter(cur -> !cur.equalsIgnoreCase(uuid)).forEach(cur -> waiters.get(cur).resume(message));
+            sids.forEach(cur -> waiters.get(cur).resume(message));
         });
 
         return Util.getResponse(Response.Status.OK, "Message sent");

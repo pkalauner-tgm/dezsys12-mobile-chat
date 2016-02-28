@@ -7,6 +7,8 @@ import java.sql.Timestamp;
  * Created by Paul on 28.02.2016.
  */
 public class Message {
+    private int id;
+    private String chatRoomId;
     private String sender;
     private String timestamp;
     private String content;
@@ -48,5 +50,21 @@ public class Message {
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getChatRoomId() {
+        return chatRoomId;
+    }
+
+    public void setChatRoomId(String chatRoomId) {
+        this.chatRoomId = chatRoomId;
     }
 }
