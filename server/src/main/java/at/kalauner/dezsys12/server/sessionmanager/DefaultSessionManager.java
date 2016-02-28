@@ -1,5 +1,6 @@
 package at.kalauner.dezsys12.server.sessionmanager;
 
+import at.kalauner.dezsys12.server.Util;
 import at.kalauner.dezsys12.server.db.User;
 import jersey.repackaged.com.google.common.cache.Cache;
 import jersey.repackaged.com.google.common.cache.CacheBuilder;
@@ -7,6 +8,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Singleton;
+import javax.ws.rs.core.Response;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -44,5 +46,14 @@ public class DefaultSessionManager implements SessionManager {
     @Override
     public User getUser(UUID uuid) {
         return cache.getIfPresent(uuid);
+    }
+
+    @Override
+    public User getUser(String uuid) {
+        try {
+            return cache.getIfPresent(UUID.fromString(uuid));
+        } catch (NullPointerException | IllegalArgumentException ex) {
+            return null;
+        }
     }
 }

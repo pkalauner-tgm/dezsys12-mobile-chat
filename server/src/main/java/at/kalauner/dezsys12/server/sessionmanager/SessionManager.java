@@ -33,4 +33,12 @@ public interface SessionManager {
      * @return user with the given session ID
      */
     User getUser(UUID uuid);
+
+    /**
+     * Returns the user with the given session ID
+     *
+     * @param uuid session ID as String
+     * @return user with the given session ID
+     */
+    User getUser(String uuid);
 }
