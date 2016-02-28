@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -32,6 +33,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.TextHttpResponseHandler;
 
 import org.json.JSONException;
@@ -41,6 +43,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import at.kalauner.dezsys12.Dezsys12Application;
 import at.kalauner.dezsys12.connection.CustomRestClient;
 import at.kalauner.dezsys12.R;
 import at.kalauner.dezsys12.activities.listener.TextWatcherImpl;
@@ -61,6 +64,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
      * Id to identity READ_CONTACTS permission request.
      */
     private static final int REQUEST_READ_CONTACTS = 0;
+    private static final String TAG = "RegisterActivity";
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -230,18 +234,31 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
             }
 
             if (entity != null)
-                CustomRestClient.postJson(this, "register", entity, new TextHttpResponseHandler() {
+                CustomRestClient.postJson(this, "register", entity, new JsonHttpResponseHandler() {
+
+
                     @Override
-                    public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         showProgress(false);
-                        mstatusText.setText(responseString);
+                        try {
+                            showProgress(false);
+                            mstatusText.setText(response.getString("message"));
+                            mregisterButton.setEnabled(false);
+                        } catch (JSONException e) {
+                            Log.e(TAG, "Failed getting message", e);
+                        }
                     }
 
                     @Override
-                    public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                         showProgress(false);
-                        mstatusText.setText(responseString);
-                        mregisterButton.setEnabled(false);
+                        try {
+                            String errorString = errorResponse.getString("message");
+                            showProgress(false);
+                            mstatusText.setText(errorString);
+                        } catch (JSONException e) {
+                            Log.e(TAG, "Failed getting error message", e);
+                        }
                     }
                 });
         }

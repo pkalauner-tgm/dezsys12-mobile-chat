@@ -3,6 +3,7 @@ package at.kalauner.dezsys12.activities;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Context;
 import android.content.CursorLoader;
@@ -31,7 +32,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.loopj.android.http.TextHttpResponseHandler;
+import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,6 +41,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import at.kalauner.dezsys12.Dezsys12Application;
 import at.kalauner.dezsys12.connection.CustomRestClient;
 import at.kalauner.dezsys12.R;
 import at.kalauner.dezsys12.activities.listener.TextWatcherImpl;
@@ -61,6 +63,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Id to identity READ_CONTACTS permission request.
      */
     private static final int REQUEST_READ_CONTACTS = 0;
+    private static final String TAG = "LoginActivity";
 
 
     // UI references.
@@ -71,6 +74,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private View mLoginFormView;
     private InputMethodManager imm;
     private Button mEmailSignInButton;
+    private Activity activity;
 
 
     @Override
@@ -80,7 +84,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
-
+        this.activity = this;
         mPasswordView = (EditText) findViewById(R.id.password);
         mstatusText = (TextView) findViewById(R.id.statusText);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -224,20 +228,34 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
 
             if (entity != null)
-                CustomRestClient.postJson(this, "login", entity, new TextHttpResponseHandler() {
+                CustomRestClient.postJson(this, "login", entity, new JsonHttpResponseHandler() {
+
                     @Override
-                    public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         showProgress(false);
-                        mstatusText.setText(responseString);
-                        mPasswordView.setError(responseString);
-                        mPasswordView.requestFocus();
+                        mEmailSignInButton.setEnabled(false);
+                        try {
+                            Intent i = new Intent(LoginActivity.this, ChatActivity.class);
+                            i.putExtra("response", response.getString("message"));
+                            Dezsys12Application app = (Dezsys12Application) activity.getApplication();
+                            app.setSessionID(response.getString("sid"));
+                            startActivity(i);
+                        } catch (JSONException e) {
+                            Log.e(TAG, "Failed decoding JSON", e);
+                        }
                     }
 
                     @Override
-                    public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                         showProgress(false);
-                        mstatusText.setText(responseString);
-                        mEmailSignInButton.setEnabled(false);
+                        try {
+                            String errorString = errorResponse.getString("message");
+                            mstatusText.setText(errorString);
+                            mPasswordView.setError(errorString);
+                            mPasswordView.requestFocus();
+                        } catch (JSONException e) {
+                            Log.e(TAG, "Failed getting error message", e);
+                        }
                     }
                 });
         }

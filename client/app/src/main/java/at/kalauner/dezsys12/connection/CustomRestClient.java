@@ -15,14 +15,13 @@ import cz.msebera.android.httpclient.entity.StringEntity;
  * @version 20160219.1
  */
 public class CustomRestClient {
-    private static final String BASE_URL = "https://glacial-tundra-57398.herokuapp.com/";
+    private static final String BASE_URL = "https://young-beyond-42910.herokuapp.com/";
 
     private static AsyncHttpClient client = new AsyncHttpClient();
 
     static {
-        // 45 secs are necessary when heroku app was sleeping
-        // it takes a time to wake up
-        client.setTimeout(45000);
+        // Long polling
+        client.setTimeout(3600000);
     }
 
 
@@ -59,6 +58,13 @@ public class CustomRestClient {
      */
     public static void postJson(Context context, String url, StringEntity entity, AsyncHttpResponseHandler responseHandler) {
         client.post(context, getAbsoluteUrl(url), entity, "application/json", responseHandler);
+    }
+
+    /**
+     * Cancels all requests
+     */
+    public static void cancelRequests() {
+        client.cancelAllRequests(true);
     }
 
     /**
