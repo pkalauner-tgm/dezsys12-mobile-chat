@@ -16,6 +16,7 @@ import cz.msebera.android.httpclient.entity.StringEntity;
  */
 public class CustomRestClient {
     private static final String BASE_URL = "https://young-beyond-42910.herokuapp.com/";
+    // private static final String BASE_URL = "http://10.0.0.15:8080/";
 
     private static AsyncHttpClient client = new AsyncHttpClient();
 

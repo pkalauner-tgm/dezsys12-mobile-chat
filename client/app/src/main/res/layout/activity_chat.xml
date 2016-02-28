@@ -40,6 +40,6 @@
         android:gravity="bottom"
         android:scrollbars="vertical"
         android:singleLine="false"
-        android:textSize="24sp" />
+        android:textSize="20sp" />
 
 </RelativeLayout>

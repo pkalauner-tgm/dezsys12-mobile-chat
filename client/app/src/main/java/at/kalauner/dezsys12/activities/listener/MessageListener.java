@@ -1,7 +1,11 @@
 package at.kalauner.dezsys12.activities.listener;
 
+import android.util.Log;
+
 import com.loopj.android.http.JsonHttpResponseHandler;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Observable;
@@ -17,9 +21,11 @@ import cz.msebera.android.httpclient.Header;
  */
 public class MessageListener extends Observable {
     private volatile boolean polling;
+    private int lastMessageId;
 
     public void startLongPoll() {
         this.polling = true;
+        this.lastMessageId = -1;
         this.checkForUpdates();
     }
 
@@ -29,9 +35,27 @@ public class MessageListener extends Observable {
     }
 
     private void checkForUpdates() {
-        CustomRestClient.get("message", null, new JsonHttpResponseHandler() {
+        CustomRestClient.get("message/" + (lastMessageId >= 0 ? lastMessageId : ""), null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                try {
+                    lastMessageId = response.getInt("id");
+                } catch (JSONException e) {
+                    Log.e("JSONException", "Could not get message id", e);
+                }
+                setChanged();
+                notifyObservers(response);
+                if (polling)
+                    checkForUpdates();
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                try {
+                    lastMessageId = response.getJSONObject(response.length() - 1).getInt("id");
+                } catch (JSONException e) {
+                    Log.e("JSONException", "Could not get message id", e);
+                }
                 setChanged();
                 notifyObservers(response);
                 if (polling)
@@ -50,5 +74,6 @@ public class MessageListener extends Observable {
                     checkForUpdates();
             }
         });
+
     }
 }

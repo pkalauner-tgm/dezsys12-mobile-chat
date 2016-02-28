@@ -119,8 +119,6 @@ public class ChatActivity extends AppCompatActivity implements Observer {
         String message = String.valueOf(mUserMessage.getText());
         mUserMessage.setText("");
 
-        this.receivedMessage(getString(R.string.me), new Timestamp(System.currentTimeMillis()).toString(), message);
-
         JSONObject params = new JSONObject();
         StringEntity entity;
         try {
@@ -173,6 +171,17 @@ public class ChatActivity extends AppCompatActivity implements Observer {
         }
     }
 
+    private void receivedMessages(JSONArray array) {
+        for (int i = 0; i < array.length(); i++) {
+            try {
+                JSONObject object = array.getJSONObject(i);
+                this.receivedMessage(object.getString("sender"), object.getString("timestamp"), object.getString("content"));
+            } catch (JSONException e) {
+                Log.e(TAG, "Could not parse message");
+            }
+        }
+    }
+
     @Override
     public void onBackPressed() {
         // Disable back button
@@ -182,8 +191,9 @@ public class ChatActivity extends AppCompatActivity implements Observer {
     public void update(Observable observable, Object data) {
         if (data instanceof JSONObject) {
             receivedMessage((JSONObject) data);
-        } else {
-            Log.e(TAG, "Not a JSONObject");
-        }
+        } else if (data instanceof JSONArray) {
+            receivedMessages((JSONArray) data);
+        } else
+            Log.e(TAG, "Not a JSONObject or JSONArray");
     }
 }
