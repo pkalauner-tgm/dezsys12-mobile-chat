@@ -45,7 +45,7 @@ public class UserLoginEndpoint {
             return Util.getResponse(Response.Status.BAD_REQUEST, "No email specified!");
 
         User userFromDb = userRepository.findOne(user.getEmail());
-        if (userFromDb != null && userFromDb.getPassword().equals(user.getPassword())) {
+        if (userFromDb != null && userFromDb.getPwhash().equals(user.getPwhash())) {
             Map<String, String> response = new HashMap<>();
             // Create Session
             UUID uuid = sessionManager.newSession(userFromDb);

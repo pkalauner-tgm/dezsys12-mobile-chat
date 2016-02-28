@@ -26,7 +26,7 @@ public class User {
     private String name;
 
     @NotEmpty
-    private String password;
+    private String pwhash;
 
     public User() {
     }
@@ -35,15 +35,15 @@ public class User {
         this.email = email;
     }
 
-    public User(String email, String password) {
+    public User(String email, String pwhash) {
         this.email = email;
-        this.password = password;
+        this.pwhash = pwhash.toLowerCase();
     }
 
-    public User(String email, String name, String password) {
+    public User(String email, String name, String pwhash) {
         this.email = email;
         this.name = name;
-        this.password = password;
+        this.pwhash = pwhash.toLowerCase();
     }
 
     public String getEmail() {
@@ -62,11 +62,11 @@ public class User {
         this.name = name;
     }
 
-    public String getPassword() {
-        return password;
+    public String getPwhash() {
+        return pwhash;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPwhash(String pwhash) {
+        this.pwhash = pwhash.toLowerCase();
     }
 }
