@@ -30,9 +30,9 @@ public class TextWatcherImpl implements TextWatcher {
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        if (!this.button.isEnabled() && !s.toString().isEmpty())
+        if (!this.button.isEnabled() && !s.toString().trim().isEmpty())
             this.button.setEnabled(true);
-        else if (this.button.isEnabled() && s.toString().isEmpty())
+        else if (this.button.isEnabled() && s.toString().trim().isEmpty())
             this.button.setEnabled(false);
     }
 

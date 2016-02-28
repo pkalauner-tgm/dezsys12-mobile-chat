@@ -2,6 +2,7 @@ package at.kalauner.dezsys12.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -28,22 +29,30 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Observable;
+import java.util.Observer;
 
 import at.kalauner.dezsys12.R;
+import at.kalauner.dezsys12.activities.listener.MessageListener;
 import at.kalauner.dezsys12.activities.listener.TextWatcherImpl;
 import at.kalauner.dezsys12.connection.CustomRestClient;
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
-public class ChatActivity extends AppCompatActivity {
+/**
+ * ChatActivity
+ *
+ * @author Paul Kalauner 5BHIT
+ * @version 20160228.1
+ */
+public class ChatActivity extends AppCompatActivity implements Observer {
     private static final String TAG = "ChatActivity";
     private EditText mUserMessage;
     private TextView mMessages;
-    private Button bSendMessage;
     private Context context;
     private SimpleDateFormat sdf1;
     private SimpleDateFormat sdf2;
-    private volatile boolean polling;
+    private MessageListener messageListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,16 +66,21 @@ public class ChatActivity extends AppCompatActivity {
         if (response != null)
             Toast.makeText(this, response, Toast.LENGTH_SHORT).show();
 
-        this.bSendMessage = (Button) findViewById(R.id.buttonSend);
+        Button bSendMessage = (Button) findViewById(R.id.buttonSend);
         this.mUserMessage = (EditText) findViewById(R.id.userMessage);
         this.mMessages = (TextView) findViewById(R.id.labelMessages);
 
         mMessages.setMovementMethod(new ScrollingMovementMethod());
-        this.mUserMessage.addTextChangedListener(new TextWatcherImpl(this.bSendMessage));
+        this.mUserMessage.addTextChangedListener(new TextWatcherImpl(bSendMessage));
 
+        // Used for parsing timestamps of messages
         this.sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         this.sdf2 = new SimpleDateFormat("HH:mm");
-        this.startLongPoll();
+
+        // Init MessageListener
+        this.messageListener = new MessageListener();
+        this.messageListener.addObserver(this);
+        this.messageListener.startLongPoll();
     }
 
 
@@ -81,7 +95,7 @@ public class ChatActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.logout:
-                this.stopLongPoll();
+                this.messageListener.stopLongPoll();
                 CustomRestClient.post("logout", null, new AsyncHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -140,49 +154,6 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    private void startLongPoll() {
-        this.polling = true;
-        this.checkForUpdates();
-    }
-
-    private void stopLongPoll() {
-        this.polling = false;
-        CustomRestClient.cancelRequests();
-    }
-
-    private void checkForUpdates() {
-        CustomRestClient.get("message", null, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    receivedMessage(response.getString("sender"), response.getString("timestamp"), response.getString("content"));
-                    if (polling)
-                        checkForUpdates();
-                } catch (JSONException e) {
-                    Log.e(TAG, "Error while getting new message");
-                }
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                Toast.makeText(context, "Error: " + responseString, Toast.LENGTH_SHORT).show();
-                if (polling)
-                    checkForUpdates();
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                try {
-                    Toast.makeText(context, "Error: " + errorResponse.getString("message"), Toast.LENGTH_SHORT).show();
-                    if (polling)
-                        checkForUpdates();
-                } catch (JSONException e) {
-                    Log.e(TAG, "Failed getting error message", e);
-                }
-            }
-        });
-    }
-
     private void receivedMessage(String sender, String timestamp, String content) {
         try {
             Date date = sdf1.parse(timestamp);
@@ -194,8 +165,25 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
+    private void receivedMessage(JSONObject object) {
+        try {
+            this.receivedMessage(object.getString("sender"), object.getString("timestamp"), object.getString("content"));
+        } catch (JSONException e) {
+            Log.e(TAG, "Could not parse message");
+        }
+    }
+
     @Override
     public void onBackPressed() {
         // Disable back button
+    }
+
+    @Override
+    public void update(Observable observable, Object data) {
+        if (data instanceof JSONObject) {
+            receivedMessage((JSONObject) data);
+        } else {
+            Log.e(TAG, "Not a JSONObject");
+        }
     }
 }
