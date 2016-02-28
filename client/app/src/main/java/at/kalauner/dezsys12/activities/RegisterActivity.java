@@ -47,6 +47,7 @@ import at.kalauner.dezsys12.Dezsys12Application;
 import at.kalauner.dezsys12.connection.CustomRestClient;
 import at.kalauner.dezsys12.R;
 import at.kalauner.dezsys12.activities.listener.TextWatcherImpl;
+import at.kalauner.dezsys12.util.Hashing;
 import at.kalauner.dezsys12.util.Validation;
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
@@ -221,6 +222,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
             // perform the user login attempt.
             showProgress(true);
 
+            password = Hashing.sha256hash(password);
 
             JSONObject params = new JSONObject();
             StringEntity entity = null;
