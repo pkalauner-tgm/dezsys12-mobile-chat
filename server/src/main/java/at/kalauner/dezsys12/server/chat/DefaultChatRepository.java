@@ -8,6 +8,12 @@ import org.springframework.util.Assert;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * In-memory ChatRepository
+ *
+ * @author Paul Kalauner 5BHIT
+ * @version 20160229.1
+ */
 @Repository
 public class DefaultChatRepository implements ChatRepository {
 
@@ -43,7 +49,7 @@ public class DefaultChatRepository implements ChatRepository {
     }
 
     private static void cleanUp(List<Message> messages) {
-        if (messages.size() > 200)
+        if (messages != null && messages.size() > 200)
             messages.clear();
     }
 

@@ -1,6 +1,8 @@
-package at.kalauner.dezsys12.server.chat;
+package at.kalauner.dezsys12.server.rest;
 
 import at.kalauner.dezsys12.server.Util;
+import at.kalauner.dezsys12.server.chat.ChatroomHandler;
+import at.kalauner.dezsys12.server.chat.Message;
 import at.kalauner.dezsys12.server.db.User;
 import at.kalauner.dezsys12.server.sessionmanager.SessionManager;
 
