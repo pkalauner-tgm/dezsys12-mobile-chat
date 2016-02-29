@@ -1,10 +1,15 @@
 package at.kalauner.dezsys12.activities;
 
+import android.annotation.TargetApi;
+import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
@@ -17,15 +22,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.TextHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,11 +34,10 @@ import java.util.Observable;
 import java.util.Observer;
 
 import at.kalauner.dezsys12.R;
-import at.kalauner.dezsys12.activities.listener.MessageListener;
+import at.kalauner.dezsys12.activities.listener.MessageHandler;
 import at.kalauner.dezsys12.activities.listener.TextWatcherImpl;
 import at.kalauner.dezsys12.connection.CustomRestClient;
 import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.entity.StringEntity;
 
 /**
  * ChatActivity
@@ -52,7 +52,7 @@ public class ChatActivity extends AppCompatActivity implements Observer {
     private Context context;
     private SimpleDateFormat sdf1;
     private SimpleDateFormat sdf2;
-    private MessageListener messageListener;
+    private MessageHandler messageHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,9 +78,10 @@ public class ChatActivity extends AppCompatActivity implements Observer {
         this.sdf2 = new SimpleDateFormat("HH:mm");
 
         // Init MessageListener
-        this.messageListener = new MessageListener();
-        this.messageListener.addObserver(this);
-        this.messageListener.startLongPoll();
+        this.messageHandler = new MessageHandler(this);
+        this.messageHandler.addObserver(this);
+        this.messageHandler.startLongPoll();
+        this.setActionBarTitle(this.messageHandler.getChatroomId());
     }
 
 
@@ -94,8 +95,36 @@ public class ChatActivity extends AppCompatActivity implements Observer {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.switch_chatroom:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Title");
+
+                final EditText input = new EditText(this);
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                builder.setView(input);
+
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String str = input.getText().toString().toLowerCase();
+                        messageHandler.stopLongPoll();
+                        messageHandler.setChatroomId(str.substring(0, 1).toUpperCase() + str.substring(1));
+                        setActionBarTitle(messageHandler.getChatroomId());
+                        messageHandler.startLongPoll();
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder.show();
+                break;
+
             case R.id.logout:
-                this.messageListener.stopLongPoll();
+                this.messageHandler.stopLongPoll();
                 CustomRestClient.post("logout", null, new AsyncHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -118,38 +147,7 @@ public class ChatActivity extends AppCompatActivity implements Observer {
     public void bSendClicked(View v) {
         String message = String.valueOf(mUserMessage.getText());
         mUserMessage.setText("");
-
-        JSONObject params = new JSONObject();
-        StringEntity entity;
-        try {
-            params.put("content", message);
-            entity = new StringEntity(params.toString());
-        } catch (JSONException | UnsupportedEncodingException e) {
-            Log.e(TAG, "Exception occurred", e);
-            return;
-        }
-
-        CustomRestClient.postJson(this, "message", entity, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                // Do nothing
-            }
-
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                Toast.makeText(context, "Error: " + responseString, Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                try {
-                    Toast.makeText(context, "Error: " + errorResponse.getString("message"), Toast.LENGTH_SHORT).show();
-                } catch (JSONException e) {
-                    Log.e(TAG, "Failed getting error message", e);
-                }
-            }
-        });
+        this.messageHandler.sendMessage(message);
     }
 
     private void receivedMessage(String sender, String timestamp, String content) {
@@ -182,9 +180,8 @@ public class ChatActivity extends AppCompatActivity implements Observer {
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        // Disable back button
+    private void setActionBarTitle(String title) {
+        setTitle(title);
     }
 
     @Override
@@ -195,5 +192,10 @@ public class ChatActivity extends AppCompatActivity implements Observer {
             receivedMessages((JSONArray) data);
         } else
             Log.e(TAG, "Not a JSONObject or JSONArray");
+    }
+
+    @Override
+    public void onBackPressed() {
+        // Disable back button
     }
 }
