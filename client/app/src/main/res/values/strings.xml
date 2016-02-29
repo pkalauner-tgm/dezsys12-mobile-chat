@@ -24,4 +24,6 @@
     <string name="chatroom">Chatroom</string>
     <string name="switch_chatroom_message">Enter the name of the chatroom you want to join/create.</string>
     <string name="welcome_to_chatroom">Welcome to Chatroom</string>
+    <string name="prompt_password_repeat">Repeat password</string>
+    <string name="passwords_nomatch">Passwords do not match</string>
 </resources>

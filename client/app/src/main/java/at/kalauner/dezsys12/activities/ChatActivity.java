@@ -1,12 +1,9 @@
 package at.kalauner.dezsys12.activities;
 
-import android.annotation.TargetApi;
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
@@ -107,15 +104,15 @@ public class ChatActivity extends AppCompatActivity implements Observer {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String str = input.getText().toString().toLowerCase();
-                        if (!str.isEmpty()) {
-                            mMessages.setText("");
-                            messageHandler.stopLongPoll();
-                            messageHandler.setChatroomId(str.substring(0, 1).toUpperCase() + str.substring(1));
-                            setActionBarTitle(messageHandler.getChatroomId());
-                            messageHandler.startLongPoll();
-                            mMessages.setText(getString(R.string.welcome_to_chatroom) + " " + messageHandler.getChatroomId() + "!");
-                        }
+                        if (str.isEmpty())
+                            str = MessageHandler.DEFAULT_CHATROOM;
 
+                        mMessages.setText("");
+                        messageHandler.stopLongPoll();
+                        messageHandler.setChatroomId(str.substring(0, 1).toUpperCase() + str.substring(1));
+                        setActionBarTitle(messageHandler.getChatroomId());
+                        messageHandler.startLongPoll();
+                        mMessages.setText(getString(R.string.welcome_to_chatroom) + " " + messageHandler.getChatroomId() + "!");
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

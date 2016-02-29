@@ -37,7 +37,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,6 +65,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
+    private EditText mPasswordView2;
     private EditText mNameView;
     private TextView mstatusText;
     private View mProgressView;
@@ -82,9 +82,10 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         populateAutoComplete();
 
         mPasswordView = (EditText) findViewById(R.id.password);
+        mPasswordView2 = (EditText) findViewById(R.id.password2);
         mNameView = (EditText) findViewById(R.id.name);
         mstatusText = (TextView) findViewById(R.id.statusText);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        mPasswordView2.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.register || id == EditorInfo.IME_NULL) {
@@ -187,6 +188,12 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         if (TextUtils.isEmpty(password) || !Validation.isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
+            cancel = true;
+        }
+
+        if (!password.equals(mPasswordView2.getText().toString())) {
+            mPasswordView2.setError(getString(R.string.passwords_nomatch));
+            focusView = mPasswordView2;
             cancel = true;
         }
 

@@ -1,6 +1,5 @@
 package at.kalauner.dezsys12.activities.listener;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
@@ -12,7 +11,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Observable;
 
 import at.kalauner.dezsys12.connection.CustomRestClient;
@@ -26,8 +24,8 @@ import cz.msebera.android.httpclient.entity.StringEntity;
  * @version 20160228.1
  */
 public class MessageHandler extends Observable {
+    public static final String DEFAULT_CHATROOM = "Default";
     private static final String TAG = "MessageHandler";
-    private static final String DEFAULT_CHATROOM = "Default";
     private Context context;
     private volatile boolean polling;
     private int lastMessageId;
