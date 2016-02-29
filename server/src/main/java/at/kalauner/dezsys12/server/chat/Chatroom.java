@@ -1,6 +1,5 @@
 package at.kalauner.dezsys12.server.chat;
 
-import javax.inject.Inject;
 import javax.ws.rs.container.AsyncResponse;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +33,13 @@ public class Chatroom {
     }
 
 
+    /**
+     * Receives all messages since the given message, or keeps the connection alive until a new message arrives
+     *
+     * @param uuid session id
+     * @param asyncResp AsyncResponse
+     * @param messageindex index of last message
+     */
     public void waitForMessage(String uuid, AsyncResponse asyncResp, int messageindex) {
         this.waiters.put(uuid, asyncResp);
 
@@ -45,6 +51,11 @@ public class Chatroom {
         }
     }
 
+    /**
+     * Broadcasts a message
+     *
+     * @param message the message which should be broadcasted
+     */
     public void sendMessage(Message message) {
         this.messageRepository.addMessage(message);
         ex.submit((Runnable) () -> {

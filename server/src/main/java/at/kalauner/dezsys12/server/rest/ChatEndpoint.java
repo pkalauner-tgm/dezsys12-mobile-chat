@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Mapping for path {@code /message}
+ * Mapping for path {@code /chat}
  *
  * @author Paul Kalauner 5BHIT
  * @version 20160228.1
@@ -31,7 +31,7 @@ import java.util.concurrent.Executors;
 @Named
 @Path("/chat")
 @Produces({MediaType.APPLICATION_JSON})
-public class MessageEndpoint {
+public class ChatEndpoint {
     private static final String DEFAULT_CHATROOM = "Default";
 
     @Inject

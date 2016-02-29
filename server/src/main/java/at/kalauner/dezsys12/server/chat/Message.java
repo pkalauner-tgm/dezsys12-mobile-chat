@@ -4,7 +4,10 @@ package at.kalauner.dezsys12.server.chat;
 import java.sql.Timestamp;
 
 /**
- * Created by Paul on 28.02.2016.
+ * Represents a message
+ *
+ * @author Paul Kalauner 5BHIT
+ * @version 20160229.1
  */
 public class Message {
     private int id;

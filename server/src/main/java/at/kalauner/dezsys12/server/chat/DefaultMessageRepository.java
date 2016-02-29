@@ -29,10 +29,9 @@ public class DefaultMessageRepository implements MessageRepository {
         List<Message> messages = messagesMap.getIfPresent(chatroomId);
         cleanUp(messages);
 
-        if (messages == null || messages.isEmpty()) {
+        if (messages == null || messages.isEmpty() || index < 0 || index > messages.size()) {
             return Collections.<Message>emptyList();
         }
-        Assert.isTrue((index >= 0) && (index <= messages.size()), "Invalid message index");
         return messages.subList(index, messages.size());
     }
 
@@ -51,10 +50,5 @@ public class DefaultMessageRepository implements MessageRepository {
     private static void cleanUp(List<Message> messages) {
         if (messages != null && messages.size() > 200)
             messages.clear();
-    }
-
-    @Override
-    public int getLatestId() {
-        return (int) (this.messagesMap.size() - 1);
     }
 }

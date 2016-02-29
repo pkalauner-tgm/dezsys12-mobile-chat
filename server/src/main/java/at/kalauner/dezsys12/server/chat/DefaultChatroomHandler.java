@@ -25,6 +25,9 @@ public class DefaultChatroomHandler implements ChatroomHandler {
     @Inject
     private MessageRepository messageRepository;
 
+    /**
+     * Default constructor
+     */
     public DefaultChatroomHandler() {
         cache = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS).build();
     }
