@@ -15,12 +15,12 @@ import java.util.concurrent.TimeUnit;
  * @version 20160229.1
  */
 @Repository
-public class DefaultChatRepository implements ChatRepository {
+public class DefaultMessageRepository implements MessageRepository {
 
     private Cache<String, List<Message>> messagesMap;
 
 
-    public DefaultChatRepository() {
+    public DefaultMessageRepository() {
         messagesMap = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS).build();
     }
 

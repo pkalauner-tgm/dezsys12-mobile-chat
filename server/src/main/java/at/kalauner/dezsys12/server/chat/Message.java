@@ -23,6 +23,11 @@ public class Message {
     }
 
     public Message(String sender, String content) {
+       this(null, sender, content);
+    }
+
+    public Message(String chatRoomId, String sender, String content) {
+        this.chatRoomId = chatRoomId;
         this.sender = sender;
         this.timestamp = new Timestamp(System.currentTimeMillis()).toString();
         this.content = content;

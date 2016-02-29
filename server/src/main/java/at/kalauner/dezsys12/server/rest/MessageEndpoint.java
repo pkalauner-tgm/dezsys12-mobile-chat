@@ -32,6 +32,8 @@ import java.util.concurrent.Executors;
 @Path("/chat")
 @Produces({MediaType.APPLICATION_JSON})
 public class MessageEndpoint {
+    private static final String DEFAULT_CHATROOM = "Default";
+
     @Inject
     private SessionManager sessionManager;
 
@@ -39,7 +41,7 @@ public class MessageEndpoint {
     private ChatroomHandler chatroomHandler;
 
     /**
-     * Receives all messages since the given message
+     * Receives all messages since the given message, or keeps the connection alive until a new message arrives
      *
      * @param asyncResp    AsyncResponse
      * @param headers      HttpHeaders
@@ -48,14 +50,14 @@ public class MessageEndpoint {
      */
     @GET
     @Path("/{chatroomid}")
-    public Response hangUp(@Suspended AsyncResponse asyncResp, @Context HttpHeaders headers, @DefaultValue("-2") @QueryParam("messageindex") int messageindex, @PathParam("chatroomid") String chatroomid) {
+    public Response waitForMessage(@Suspended AsyncResponse asyncResp, @Context HttpHeaders headers, @DefaultValue("-2") @QueryParam("messageindex") int messageindex, @PathParam("chatroomid") String chatroomid) {
         String uuid = headers.getCookies().get("sid").getValue();
         User user = sessionManager.getUser(uuid);
 
         if (user == null)
             return Util.getResponse(Response.Status.BAD_REQUEST, "No open session with this ID. Try reconnecting to the chat.");
 
-        this.chatroomHandler.waitForMessage(chatroomid, uuid, asyncResp, messageindex);
+        this.chatroomHandler.waitForMessage(chatroomid != null ? chatroomid : DEFAULT_CHATROOM, uuid, asyncResp, messageindex);
         return Response.ok().build();
     }
 
@@ -80,8 +82,7 @@ public class MessageEndpoint {
         if (messageContent.isEmpty())
             return Util.getResponse(Response.Status.BAD_REQUEST, "Empty message");
 
-        Message message = new Message(user.getName(), messageContent);
-        message.setChatRoomId(chatroomid);
+        Message message = new Message(chatroomid != null ? chatroomid : DEFAULT_CHATROOM, user.getName(), messageContent);
         this.chatroomHandler.sendMessage(message);
         return Util.getResponse(Response.Status.OK, "Message sent");
     }
