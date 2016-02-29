@@ -1,17 +1,26 @@
 package at.kalauner.dezsys12.server.chat;
 
+import jersey.repackaged.com.google.common.cache.Cache;
+import jersey.repackaged.com.google.common.cache.CacheBuilder;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Repository
 public class DefaultChatRepository implements ChatRepository {
 
-    private final Map<String, List<Message>> messagesMap = new HashMap<>();
+    private Cache<String, List<Message>> messagesMap;
+
+
+    public DefaultChatRepository() {
+        messagesMap = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS).build();
+    }
+
 
     public List<Message> getMessages(String chatroomId, int index) {
-        List<Message> messages = messagesMap.get(chatroomId);
+        List<Message> messages = messagesMap.getIfPresent(chatroomId);
         cleanUp(messages);
 
         if (messages == null || messages.isEmpty()) {
@@ -22,7 +31,7 @@ public class DefaultChatRepository implements ChatRepository {
     }
 
     public void addMessage(Message message) {
-        List<Message> messages = messagesMap.get(message.getChatRoomId());
+        List<Message> messages = messagesMap.getIfPresent(message.getChatRoomId());
         if (messages == null) {
             List<Message> newList = new ArrayList<>();
             messagesMap.put(message.getChatRoomId(), newList);
@@ -40,6 +49,6 @@ public class DefaultChatRepository implements ChatRepository {
 
     @Override
     public int getLatestId() {
-        return this.messagesMap.size() - 1;
+        return (int) (this.messagesMap.size() - 1);
     }
 }
