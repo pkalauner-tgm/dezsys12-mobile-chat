@@ -29,8 +29,8 @@ public class CustomRestClient {
     /**
      * Sends a get request
      *
-     * @param url url
-     * @param params request params
+     * @param url             url
+     * @param params          request params
      * @param responseHandler callback method
      */
     public static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
@@ -38,10 +38,22 @@ public class CustomRestClient {
     }
 
     /**
+     * Sends a get request
+     *
+     * @param context         context
+     * @param url             url
+     * @param params          request params
+     * @param responseHandler callback method
+     */
+    public static void get(Context context, String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        client.get(context, getAbsoluteUrl(url), params, responseHandler);
+    }
+
+    /**
      * Sends a post request
      *
-     * @param url url
-     * @param params request params
+     * @param url             url
+     * @param params          request params
      * @param responseHandler callback method
      */
     public static void post(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
@@ -52,9 +64,9 @@ public class CustomRestClient {
     /**
      * Sends a post request with a JSON-Body
      *
-     * @param context application cib
-     * @param url url
-     * @param entity json body
+     * @param context         context
+     * @param url             url
+     * @param entity          json body
      * @param responseHandler callback method
      */
     public static void postJson(Context context, String url, StringEntity entity, AsyncHttpResponseHandler responseHandler) {

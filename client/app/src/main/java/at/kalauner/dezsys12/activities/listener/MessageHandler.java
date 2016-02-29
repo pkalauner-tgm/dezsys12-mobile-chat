@@ -63,7 +63,7 @@ public class MessageHandler extends Observable {
             params.put("messageindex", lastMessageId);
         }
 
-        CustomRestClient.get("chat/" + chatroomId, params, new JsonHttpResponseHandler() {
+        CustomRestClient.get(context, "chat/" + chatroomId, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
