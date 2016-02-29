@@ -82,6 +82,7 @@ public class ChatActivity extends AppCompatActivity implements Observer {
         this.messageHandler.addObserver(this);
         this.messageHandler.startLongPoll();
         this.setActionBarTitle(this.messageHandler.getChatroomId());
+        mMessages.setText(getString(R.string.welcome_to_chatroom) + " " + messageHandler.getChatroomId() + "!");
     }
 
 
@@ -97,8 +98,7 @@ public class ChatActivity extends AppCompatActivity implements Observer {
         switch (item.getItemId()) {
             case R.id.switch_chatroom:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Title");
-
+                builder.setTitle(getString(R.string.switch_chatroom)).setMessage(R.string.switch_chatroom_message);
                 final EditText input = new EditText(this);
                 input.setInputType(InputType.TYPE_CLASS_TEXT);
                 builder.setView(input);
@@ -106,11 +106,14 @@ public class ChatActivity extends AppCompatActivity implements Observer {
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        mMessages.setText("");
                         String str = input.getText().toString().toLowerCase();
                         messageHandler.stopLongPoll();
                         messageHandler.setChatroomId(str.substring(0, 1).toUpperCase() + str.substring(1));
                         setActionBarTitle(messageHandler.getChatroomId());
                         messageHandler.startLongPoll();
+                        mMessages.setText(getString(R.string.welcome_to_chatroom) + " " + messageHandler.getChatroomId() + "!");
+
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -124,6 +127,7 @@ public class ChatActivity extends AppCompatActivity implements Observer {
                 break;
 
             case R.id.logout:
+                item.setEnabled(false);
                 this.messageHandler.stopLongPoll();
                 CustomRestClient.post("logout", null, new AsyncHttpResponseHandler() {
                     @Override

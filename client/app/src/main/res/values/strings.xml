@@ -22,4 +22,6 @@
     <string name="me">Ich</string>
     <string name="switch_chatroom">Switch Chatroom</string>
     <string name="chatroom">Chatroom</string>
+    <string name="switch_chatroom_message">Enter the name of the chatroom you want to join/create.</string>
+    <string name="welcome_to_chatroom">Welcome to Chatroom</string>
 </resources>
