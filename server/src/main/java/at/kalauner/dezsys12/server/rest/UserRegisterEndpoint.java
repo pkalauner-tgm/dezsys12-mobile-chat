@@ -43,7 +43,7 @@ public class UserRegisterEndpoint {
                 return Util.getResponse(Response.Status.BAD_REQUEST, "User " + user.getEmail() + " already exists!");
             }
         } catch (TransactionSystemException | InvalidDataAccessApiUsageException ex) {
-            return Util.getResponse(Response.Status.BAD_REQUEST, "Missing parameters!");
+            return Util.getResponse(Response.Status.BAD_REQUEST, "Invalid or missing parameters!");
         }
     }
 }
