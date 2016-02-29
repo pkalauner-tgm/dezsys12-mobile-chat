@@ -114,8 +114,8 @@ public class MessageHandler extends Observable {
         StringEntity entity;
         try {
             params.put("content", message);
-            entity = new StringEntity(params.toString());
-        } catch (JSONException | UnsupportedEncodingException e) {
+            entity = new StringEntity(params.toString(), "UTF-8");
+        } catch (JSONException e) {
             Log.e(TAG, "Exception occurred", e);
             return;
         }

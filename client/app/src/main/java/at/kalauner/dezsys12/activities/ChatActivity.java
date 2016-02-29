@@ -106,13 +106,15 @@ public class ChatActivity extends AppCompatActivity implements Observer {
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mMessages.setText("");
                         String str = input.getText().toString().toLowerCase();
-                        messageHandler.stopLongPoll();
-                        messageHandler.setChatroomId(str.substring(0, 1).toUpperCase() + str.substring(1));
-                        setActionBarTitle(messageHandler.getChatroomId());
-                        messageHandler.startLongPoll();
-                        mMessages.setText(getString(R.string.welcome_to_chatroom) + " " + messageHandler.getChatroomId() + "!");
+                        if (!str.isEmpty()) {
+                            mMessages.setText("");
+                            messageHandler.stopLongPoll();
+                            messageHandler.setChatroomId(str.substring(0, 1).toUpperCase() + str.substring(1));
+                            setActionBarTitle(messageHandler.getChatroomId());
+                            messageHandler.startLongPoll();
+                            mMessages.setText(getString(R.string.welcome_to_chatroom) + " " + messageHandler.getChatroomId() + "!");
+                        }
 
                     }
                 });

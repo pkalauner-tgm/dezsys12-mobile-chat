@@ -225,8 +225,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             try {
                 params.put("email", email);
                 params.put("pwhash", password);
-                entity = new StringEntity(params.toString());
-            } catch (JSONException | UnsupportedEncodingException e) {
+                entity = new StringEntity(params.toString(), "UTF-8");
+            } catch (JSONException e) {
                 Log.e("Login", "Exception occurred", e);
             }
 

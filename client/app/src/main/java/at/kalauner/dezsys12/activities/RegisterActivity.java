@@ -226,8 +226,8 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
                 params.put("email", email);
                 params.put("name", name);
                 params.put("pwhash", password);
-                entity = new StringEntity(params.toString());
-            } catch (JSONException | UnsupportedEncodingException e) {
+                entity = new StringEntity(params.toString(), "UTF-8");
+            } catch (JSONException e) {
                 Log.e("Register", "Exception occurred", e);
             }
 
