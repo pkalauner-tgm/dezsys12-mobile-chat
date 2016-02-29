@@ -136,7 +136,7 @@ public class MessageHandler extends Observable {
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 try {
                     Toast.makeText(context, "Error: " + errorResponse.getString("message"), Toast.LENGTH_SHORT).show();
-                } catch (JSONException e) {
+                } catch (JSONException | NullPointerException e) {
                     Log.e(TAG, "Failed getting error message", e);
                 }
             }

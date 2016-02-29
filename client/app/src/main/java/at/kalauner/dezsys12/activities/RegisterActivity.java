@@ -254,7 +254,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
                             String errorString = errorResponse.getString("message");
                             showProgress(false);
                             mstatusText.setText(errorString);
-                        } catch (JSONException e) {
+                        } catch (JSONException | NullPointerException e) {
                             Log.e(TAG, "Failed getting error message", e);
                         }
                     }

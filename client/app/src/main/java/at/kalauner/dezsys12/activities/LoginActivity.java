@@ -256,7 +256,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             mstatusText.setText(errorString);
                             mPasswordView.setError(errorString);
                             mPasswordView.requestFocus();
-                        } catch (JSONException e) {
+                        } catch (JSONException | NullPointerException e) {
                             Log.e(TAG, "Failed getting error message", e);
                         }
                     }
@@ -354,5 +354,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mEmailView.setAdapter(adapter);
     }
 
+    @Override
+    public void onBackPressed() {
+        // Disable back button
+    }
 }
 

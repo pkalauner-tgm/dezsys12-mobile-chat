@@ -22,7 +22,7 @@ public class CustomRestClient {
 
     static {
         // Long polling
-        client.setTimeout(3600000);
+        client.setTimeout(80000);
     }
 
 
